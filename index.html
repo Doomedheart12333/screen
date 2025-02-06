@@ -3,80 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Index Page</title>
+    <title>Screen Share</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav {
-            text-align: center;
-            background-color: #444;
-            padding: 8px;
-        }
-        nav a {
-            color: #fff;
-            margin: 0 15px;
-            text-decoration: none;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        section {
-            padding: 20px;
-            margin: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
+        #screenShareBtn, #endShareBtn {
             padding: 10px;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
+            margin: 20px;
+            cursor: pointer;
+        }
+        #endShareBtn {
+            display: none;
+            background-color: red;
+            color: white;
         }
     </style>
 </head>
 <body>
+    <h1>Screen Share Example</h1>
+    <button id="screenShareBtn">Start Screen Share</button>
+    <button id="endShareBtn">End Screen Share</button>
 
-    <header>
-        <h1>Welcome to My Website</h1>
-    </header>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.1/dist/peerjs.min.js"></script>
+    <script>
+        let isSharing = false;
+        const screenShareBtn = document.getElementById('screenShareBtn');
+        const endShareBtn = document.getElementById('endShareBtn');
 
-    <nav>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-    </nav>
+        // Simulating a shared state (this should be handled on a server in a real app)
+        let isSomeoneSharing = false; 
 
-    <section id="home">
-        <h2>Home Section</h2>
-        <p>This is the home section of the page. You can add any content here, such as text, images, or videos.</p>
-    </section>
+        // Start screen sharing
+        screenShareBtn.addEventListener('click', async () => {
+            if (isSomeoneSharing) {
+                alert('Someone else is already sharing their screen!');
+                return;
+            }
 
-    <section id="about">
-        <h2>About Section</h2>
-        <p>This is the about section. Use it to introduce your website or tell visitors more about your goals or vision.</p>
-    </section>
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                isSharing = true;
+                isSomeoneSharing = true;
 
-    <section id="contact">
-        <h2>Contact Section</h2>
-        <p>If you'd like to get in touch, please contact us at <a href="mailto:info@example.com">info@example.com</a>.</p>
-    </section>
+                // Here you would send the stream to others in a real application (e.g., via WebRTC or WebSockets)
 
-    <footer>
-        <p>&copy; This is stupid, reserved.</p>
-    </footer>
+                screenShareBtn.style.display = 'none';
+                endShareBtn.style.display = 'inline-block';
+                
+                // Display the screen
+                document.getElementById('yourVideo').srcObject = stream;
+            } catch (err) {
+                alert('Error starting screen share: ' + err);
+            }
+        });
 
+        // End screen sharing
+        endShareBtn.addEventListener('click', () => {
+            if (isSharing) {
+                const stream = document.getElementById('yourVideo').srcObject;
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+
+                isSharing = false;
+                isSomeoneSharing = false;
+
+                screenShareBtn.style.display = 'inline-block';
+                endShareBtn.style.display = 'none';
+
+                // Remove video element (just an example)
+                document.getElementById('yourVideo').srcObject = null;
+            }
+        });
+    </script>
 </body>
 </html>
